@@ -67,6 +67,30 @@ Result<> loadExtraPackData(ModPlatform::IndexedPack& pack, const QJsonObject& ob
 
     pack.extraData.status = obj["status"].toString();
 
+    if (obj.contains("downloads")) {
+        pack.extraData.downloads = static_cast<quint64>(obj["downloads"].toVariant().toULongLong());
+    }
+    if (obj.contains("followers")) {
+        pack.extraData.followers = static_cast<quint64>(obj["followers"].toVariant().toULongLong());
+    } else if (obj.contains("follows")) {
+        pack.extraData.followers = static_cast<quint64>(obj["follows"].toVariant().toULongLong());
+    }
+
+    if (obj.contains("gallery")) {
+        pack.extraData.gallery.clear();
+        for (const auto& item : obj["gallery"].toArray()) {
+            if (!item.isObject())
+                continue;
+            auto gObj = item.toObject();
+            ModPlatform::GalleryItem g;
+            g.url = gObj["url"].toString();
+            g.rawUrl = gObj["raw_url"].toString();
+            g.title = gObj["title"].toString();
+            g.description = gObj["description"].toString();
+            pack.extraData.gallery.append(g);
+        }
+    }
+
     pack.extraData.body = obj["body"].toString().remove("<br>");
 
     pack.extraDataLoaded = !pack.extraData.body.isEmpty();

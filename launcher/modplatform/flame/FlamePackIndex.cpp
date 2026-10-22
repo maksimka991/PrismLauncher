@@ -54,6 +54,31 @@ Result<> loadIndexedPack(ModPlatform::IndexedPack& pack, const QJsonObject& obj)
     pack.resourceType = FlameAPI::getResourceType(obj["classId"].toInt(0));
     pack.extraDataLoaded = false;
 
+    if (obj.contains("downloadCount")) {
+        pack.extraData.downloads = static_cast<quint64>(obj["downloadCount"].toVariant().toULongLong());
+    }
+    if (obj.contains("thumbsUpCount")) {
+        pack.extraData.followers = static_cast<quint64>(obj["thumbsUpCount"].toVariant().toULongLong());
+    }
+
+    if (obj.contains("screenshots")) {
+        pack.extraData.gallery.clear();
+        for (const auto& item : obj["screenshots"].toArray()) {
+            if (!item.isObject())
+                continue;
+            auto sObj = item.toObject();
+            ModPlatform::GalleryItem g;
+            g.url = sObj["thumbnailUrl"].toString();
+            g.rawUrl = sObj["url"].toString();
+            if (g.url.isEmpty()) {
+                g.url = g.rawUrl;
+            }
+            g.title = sObj["title"].toString();
+            g.description = sObj["description"].toString();
+            pack.extraData.gallery.append(g);
+        }
+    }
+
     auto linksObj = obj["links"].toObject();
 
     pack.extraData.issuesUrl = linksObj["issuesUrl"].toString();

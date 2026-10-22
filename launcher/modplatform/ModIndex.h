@@ -166,6 +166,13 @@ struct DonationData {
     QString url;
 };
 
+struct GalleryItem {
+    QString url;
+    QString rawUrl;
+    QString title;
+    QString description;
+};
+
 enum class IndexedVersionTypeValue : std::uint8_t { Unknown = 0, Release = 1, Beta = 2, Alpha = 3 };
 struct IndexedVersionType : EnumWrapper<IndexedVersionType, IndexedVersionTypeValue> {
     static constexpr auto invalid() { return Unknown; };
@@ -287,6 +294,10 @@ struct ExtraPackData {
     QString status;
 
     QString body;
+
+    quint64 downloads = 0;
+    quint64 followers = 0;
+    QList<GalleryItem> gallery;
 };
 
 struct IndexedPack {

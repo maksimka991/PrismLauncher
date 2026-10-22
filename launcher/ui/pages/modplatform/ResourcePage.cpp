@@ -292,6 +292,34 @@ void ResourcePage::updateUi(const QModelIndex& index)
         }
     }
 
+    if (currentPack->extraData.downloads > 0 || currentPack->extraData.followers > 0) {
+        QStringList stats;
+        if (currentPack->extraData.downloads > 0) {
+            stats << tr("Downloads: %1").arg(QLocale().toString(currentPack->extraData.downloads));
+        }
+        if (currentPack->extraData.followers > 0) {
+            QString followLabel = (currentPack->provider == ModPlatform::ResourceProvider::MODRINTH)
+                                      ? tr("Followers: %1")
+                                      : tr("Likes: %1");
+            stats << followLabel.arg(QLocale().toString(currentPack->extraData.followers));
+        }
+        text += "<br><br><b>" + stats.join(" &nbsp;|&nbsp; ") + "</b>";
+    }
+
+    if (!currentPack->extraData.gallery.isEmpty()) {
+        text += "<br><br><b>" + tr("Gallery:") + "</b><br>";
+        for (const auto& item : currentPack->extraData.gallery) {
+            QString thumbUrl = !item.url.isEmpty() ? item.url : item.rawUrl;
+            QString fullUrl = !item.rawUrl.isEmpty() ? item.rawUrl : item.url;
+            QString title = item.title.toHtmlEscaped();
+            text += QString("<a href=\"%1\"><img src=\"%2\" width=\"150\" style=\"margin: 3px; border: 1px solid #555;\"").arg(fullUrl, thumbUrl);
+            if (!title.isEmpty()) {
+                text += QString(" title=\"%1\"").arg(title);
+            }
+            text += "/></a> ";
+        }
+    }
+
     text += "<hr>";
 
     m_ui->packDescription->setHtml(StringUtils::htmlListPatch(
